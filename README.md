@@ -8,9 +8,8 @@
   <p align="center">
     <img src="https://github.com/VictorH456/VictorCostaRyanK-_ws_OS_RR_2024./blob/main/Implementa%C3%A7%C3%A3o/jogodavelha.jpg">
     
-  Este trabalho aborda o projeto de implementação de um Jogo da velha em c utilizando threads para a sua execução.
 # Jogo da Velha
-  O projeto a ser desenvolvido, consiste na criação do jogo da velha. Neste caso, o jogo será feito por
+  O projeto a ser desenvolvido, consiste na criação do jogo da velha em c. Neste caso, o jogo será feito por
   dois usuários artificiais (ou seja duas threads) no mesmo jogo da velha. Cada usuário deve operar o
   jogo no mesmo tabuleiro do jogo da velha 3 por 3. Assim, o recurso compartilhado será tabuleiro do
   jogo da velha, logo os jogadores devem esperar a sua vez de jogar e obdecer a regras do jogo.
