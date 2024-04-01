@@ -15,18 +15,14 @@
     - Interface gráfica
     -
 */
-// quantas treads = 2
-// regiões criticas e como elas vão se comunicar
-// como vamos modelar o problema
 
-// v = Pode jogar, x = tread 1, o = tread 2.
 char tabuleiro[3][3] = {{' ', ' ', ' '},
                         {' ', ' ', ' '},
                         {' ', ' ', ' '}};
 /*
- [0][0] [0][1] [0][2]
- [1][0] [1][1] [1][2]
- [2][0] [2][1] [2][2]
+ [0][0] [1][0] [2][0]
+ [0][1] [1][1] [2][1]
+ [0][2] [1][2] [2][2]
 */
 
 int quantidade_jogada = 0;
@@ -40,7 +36,7 @@ int should_sleep = 1; // variável de condição
 
 char verifica(int id)
 {
-    char simb = ' ';
+    char simb;
     if (id == 1)
     {
         simb = 'x';
@@ -50,39 +46,22 @@ char verifica(int id)
         simb = 'o';
     }
 
-    if (tabuleiro[0][0] == simb && tabuleiro[0][1] == simb && tabuleiro[0][2] == simb)
+    // Verifica linhas e colunas
+    for (int i = 0; i < 3; i++)
     {
-        ganhou = 'v';
+        if (tabuleiro[i][0] == simb && tabuleiro[i][1] == simb && tabuleiro[i][2] == simb ||
+            tabuleiro[0][i] == simb && tabuleiro[1][i] == simb && tabuleiro[2][i] == simb)
+        {
+            return 'v';
+        }
     }
-    if (tabuleiro[1][0] == simb && tabuleiro[1][1] == simb && tabuleiro[1][2] == simb)
-    {
-        ganhou = 'v';
+
+    // Verifica diagonais
+    if (tabuleiro[0][0] == simb && tabuleiro[1][1] == simb && tabuleiro[2][2] == simb ||
+        tabuleiro[0][2] == simb && tabuleiro[1][1] == simb && tabuleiro[2][0] == simb) {
+        return 'v';
     }
-    if (tabuleiro[2][0] == simb && tabuleiro[2][1] == simb && tabuleiro[2][2] == simb)
-    {
-        ganhou = 'v';
-    }
-    if (tabuleiro[0][0] == simb && tabuleiro[1][0] == simb && tabuleiro[2][0] == simb)
-    {
-        ganhou = 'v';
-    }
-    if (tabuleiro[0][1] == simb && tabuleiro[1][1] == simb && tabuleiro[2][1] == simb)
-    {
-        ganhou = 'v';
-    }
-    if (tabuleiro[0][2] == simb && tabuleiro[1][2] == simb && tabuleiro[2][2] == simb)
-    {
-        ganhou = 'v';
-    }
-    if (tabuleiro[0][0] == simb && tabuleiro[1][1] == simb && tabuleiro[2][2] == simb)
-    {
-        ganhou = 'v';
-    }
-    if (tabuleiro[2][0] == simb && tabuleiro[1][1] == simb && tabuleiro[0][2] == simb)
-    {
-        ganhou = 'v';
-    }
-    return ganhou;
+    return 'f';
 }
 
 void *jogada_tread1(void *arg)
