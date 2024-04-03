@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <pthread.h>
+#include <unistd.h>
+
 /*
     [TEMA - 1] Jogo da Velha
     O projeto a ser desenvolvido, consiste na criação do jogo da velha. Neste caso, o jogo será feito por
@@ -32,6 +34,7 @@ char ganhou = 'f';
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
+// Regiao critica
 int should_sleep = 1; // variável de condição
 
 char verifica(int id)
@@ -58,7 +61,8 @@ char verifica(int id)
 
     // Verifica diagonais
     if (tabuleiro[0][0] == simb && tabuleiro[1][1] == simb && tabuleiro[2][2] == simb ||
-        tabuleiro[0][2] == simb && tabuleiro[1][1] == simb && tabuleiro[2][0] == simb) {
+        tabuleiro[0][2] == simb && tabuleiro[1][1] == simb && tabuleiro[2][0] == simb)
+    {
         return 'v';
     }
     return 'f';
@@ -104,7 +108,7 @@ void *jogada_tread1(void *arg)
                 printf("\n");
             }
 
-            printf("jogador 1 joga\n");
+            printf("Jogador 1 joga\n");
 
             quantidade_jogada++;
             ganhou = verifica(*id);
@@ -118,14 +122,14 @@ void *jogada_tread1(void *arg)
                 printf("Empatou\n");
                 quantidade_jogada = max_jogada; // Encerra o jogo
             }
-
-            if (quantidade_jogada % 2 != 0)
-            {
-                pthread_mutex_lock(&mutex);
-                should_sleep = 0; // thread 1 dorme
-                pthread_mutex_unlock(&mutex);
-                pthread_cond_signal(&cond);
-            }
+        }
+        sleep(1);
+        if (quantidade_jogada % 2 != 0)
+        {
+            pthread_mutex_lock(&mutex);
+            should_sleep = 0; // thread 1 dorme
+            pthread_mutex_unlock(&mutex);
+            pthread_cond_signal(&cond);
         }
     }
 }
@@ -186,6 +190,7 @@ void *jogada_tread2(void *arg)
                 quantidade_jogada = max_jogada; // Encerra o jogo
             }
         }
+        sleep(1);
         if (quantidade_jogada % 2 == 0)
         {
             pthread_mutex_lock(&mutex);
