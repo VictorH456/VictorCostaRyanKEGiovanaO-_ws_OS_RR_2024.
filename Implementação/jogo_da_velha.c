@@ -11,23 +11,17 @@
     jogo no mesmo tabuleiro do jogo da velha 3 por 3. Assim, o recurso compartilhado será tabuleiro do
     jogo da velha, logo os jogadores devem esperar a sua vez de jogar e obdecer a regras do jogo.
 */
-/*
-    Ideias:
-    - Utilizar número de jogadas para saber qual tread utilizar(par - tread 1, impar - tread 2)
-    - Interface gráfica
-    -
-*/
 
 char simb;
 int r_l;
 int r_c;
+char ganhou = 'f';
+
 /*
  [0][0] [1][0] [2][0]
  [0][1] [1][1] [2][1]
  [0][2] [1][2] [2][2]
 */
-
-char ganhou = 'f';
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
@@ -54,7 +48,7 @@ char verifica(int id)
             return 'v';
         }
     }
-    
+
     // Verifica diagonais
     if (tabuleiro[0][0] == simb && tabuleiro[1][1] == simb && tabuleiro[2][2] == simb ||
         tabuleiro[0][2] == simb && tabuleiro[1][1] == simb && tabuleiro[2][0] == simb)
@@ -124,7 +118,7 @@ void *jogada_tread(void *arg)
 
         sleep(1);
         pthread_mutex_lock(&mutex);
-        should_sleep = !should_sleep; // thread 1 dorme
+        should_sleep = !should_sleep; // thread 1 ou 2 dorme
         pthread_mutex_unlock(&mutex);
         pthread_cond_signal(&cond);
     }
@@ -132,10 +126,9 @@ void *jogada_tread(void *arg)
 
 int main()
 {
-    srand(time(NULL)); // Inicializa o gerador de números aleatórios com um valor de "semente" diferente
+    srand(time(NULL)); // Inicializa o gerador aleatório com uma seed diferente
 
-    pthread_t t1;
-    pthread_t t2;
+    pthread_t t1, t2;
     int t1_id = 1;
     int t2_id = 2;
 
