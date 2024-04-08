@@ -18,36 +18,32 @@
     -
 */
 
-char tabuleiro[3][3] = {{' ', ' ', ' '},
-                        {' ', ' ', ' '},
-                        {' ', ' ', ' '}};
+char simb;
+int r_l;
+int r_c;
 /*
  [0][0] [1][0] [2][0]
  [0][1] [1][1] [2][1]
  [0][2] [1][2] [2][2]
 */
 
-int quantidade_jogada = 0;
-int max_jogada = 9;
 char ganhou = 'f';
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 // Regiao critica
+char tabuleiro[3][3] = {{' ', ' ', ' '},
+                        {' ', ' ', ' '},
+                        {' ', ' ', ' '}};
+
 int should_sleep = 1; // variável de condição
+int quantidade_jogada = 0;
+int max_jogada = 9;
 
 char verifica(int id)
 {
-    char simb;
-    if (id == 1)
-    {
-        simb = 'x';
-    }
-    if (id == 2)
-    {
-        simb = 'o';
-    }
+    simb = id == 1 ? 'x' : 'o';
 
     // Verifica linhas e colunas
     for (int i = 0; i < 3; i++)
@@ -58,7 +54,7 @@ char verifica(int id)
             return 'v';
         }
     }
-
+    
     // Verifica diagonais
     if (tabuleiro[0][0] == simb && tabuleiro[1][1] == simb && tabuleiro[2][2] == simb ||
         tabuleiro[0][2] == simb && tabuleiro[1][1] == simb && tabuleiro[2][0] == simb)
@@ -68,79 +64,14 @@ char verifica(int id)
     return 'f';
 }
 
-void *jogada_tread1(void *arg)
-{
-    int *id = (int *)arg;
-    while (1)
-    {
-        pthread_mutex_lock(&mutex);
-        while (!should_sleep)
-        {
-            pthread_cond_wait(&cond, &mutex);
-        }
-        pthread_mutex_unlock(&mutex);
-
-        if (quantidade_jogada != max_jogada)
-        {
-            while (1)
-            {
-                int r_l = 0 + rand() % (2 - 0 + 1);
-                int r_c = 0 + rand() % (2 - 0 + 1);
-                if (tabuleiro[r_l][r_c] == ' ')
-                {
-                    tabuleiro[r_l][r_c] = 'x';
-                    break;
-                }
-            }
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    if (j != 2)
-                    {
-                        printf("| %c ", tabuleiro[i][j]);
-                    }
-                    else
-                    {
-                        printf("| %c |", tabuleiro[i][j]);
-                    }
-                }
-                printf("\n");
-            }
-
-            printf("Jogador 1 joga\n");
-
-            quantidade_jogada++;
-            ganhou = verifica(*id);
-            if (ganhou == 'v')
-            {
-                printf("\nJogador %d ganhou\n", *id);
-                quantidade_jogada = max_jogada; // Encerra o jogo
-            }
-            else if (ganhou == 'f' && quantidade_jogada >= max_jogada)
-            {
-                printf("Empatou\n");
-                quantidade_jogada = max_jogada; // Encerra o jogo
-            }
-        }
-        sleep(1);
-        if (quantidade_jogada % 2 != 0)
-        {
-            pthread_mutex_lock(&mutex);
-            should_sleep = 0; // thread 1 dorme
-            pthread_mutex_unlock(&mutex);
-            pthread_cond_signal(&cond);
-        }
-    }
-}
-void *jogada_tread2(void *arg)
+void *jogada_tread(void *arg)
 {
     int *id = (int *)arg;
     while (1)
     {
         // Sistema para acordar a thread
         pthread_mutex_lock(&mutex);
-        while (should_sleep)
+        while (*id == 1 ? !should_sleep : should_sleep)
         {
             pthread_cond_wait(&cond, &mutex);
         }
@@ -155,7 +86,7 @@ void *jogada_tread2(void *arg)
                 int r_c = 0 + rand() % (2 - 0 + 1);
                 if (tabuleiro[r_l][r_c] == ' ')
                 {
-                    tabuleiro[r_l][r_c] = 'o';
+                    tabuleiro[r_l][r_c] = *id == 1 ? 'x' : 'o';
                     break;
                 }
             }
@@ -175,7 +106,7 @@ void *jogada_tread2(void *arg)
                 printf("\n");
             }
 
-            printf("Jogador 2 Joga\n");
+            printf("Jogador %d Joga\n", *id);
             quantidade_jogada++;
 
             ganhou = verifica(*id);
@@ -190,14 +121,12 @@ void *jogada_tread2(void *arg)
                 quantidade_jogada = max_jogada; // Encerra o jogo
             }
         }
+
         sleep(1);
-        if (quantidade_jogada % 2 == 0)
-        {
-            pthread_mutex_lock(&mutex);
-            should_sleep = 1; // thread 2 dorme
-            pthread_mutex_unlock(&mutex);
-            pthread_cond_signal(&cond);
-        }
+        pthread_mutex_lock(&mutex);
+        should_sleep = !should_sleep; // thread 1 dorme
+        pthread_mutex_unlock(&mutex);
+        pthread_cond_signal(&cond);
     }
 }
 
@@ -210,8 +139,8 @@ int main()
     int t1_id = 1;
     int t2_id = 2;
 
-    pthread_create(&t1, NULL, jogada_tread1, &t1_id);
-    pthread_create(&t2, NULL, jogada_tread2, &t2_id);
+    pthread_create(&t1, NULL, jogada_tread, &t1_id);
+    pthread_create(&t2, NULL, jogada_tread, &t2_id);
     pthread_join(t1, NULL);
     pthread_join(t2, NULL);
     pthread_exit(NULL);
