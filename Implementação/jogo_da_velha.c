@@ -4,14 +4,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-/*
-    [TEMA - 1] Jogo da Velha
-    O projeto a ser desenvolvido, consiste na criação do jogo da velha. Neste caso, o jogo será feito por
-    dois usuários artificiais (ou seja duas threads) no mesmo jogo da velha. Cada usuário deve operar o
-    jogo no mesmo tabuleiro do jogo da velha 3 por 3. Assim, o recurso compartilhado será tabuleiro do
-    jogo da velha, logo os jogadores devem esperar a sua vez de jogar e obdecer a regras do jogo.
-*/
-
+//Varivaveis globais
 char simb;
 int r_l;
 int r_c;
@@ -27,13 +20,13 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 // Regiao critica
-char tabuleiro[3][3] = {{' ', ' ', ' '},
-                        {' ', ' ', ' '},
-                        {' ', ' ', ' '}};
-
+char ganhou = 'f';
 int should_sleep = 1; // variável de condição
 int quantidade_jogada = 0;
 int max_jogada = 9;
+char tabuleiro[3][3] = {{' ', ' ', ' '},
+                        {' ', ' ', ' '},
+                        {' ', ' ', ' '}};
 
 char verifica(int id)
 {
@@ -58,7 +51,7 @@ char verifica(int id)
     return 'f';
 }
 
-void *jogada_tread(void *arg)
+void *jogada_thread(void *arg)
 {
     int *id = (int *)arg;
     while (1)
@@ -126,14 +119,16 @@ void *jogada_tread(void *arg)
 
 int main()
 {
-    srand(time(NULL)); // Inicializa o gerador aleatório com uma seed diferente
+    // Inicializa o gerador aleatório com uma seed diferente
+    srand(time(NULL)); 
 
+    //Criação das threads
     pthread_t t1, t2;
     int t1_id = 1;
     int t2_id = 2;
 
-    pthread_create(&t1, NULL, jogada_tread, &t1_id);
-    pthread_create(&t2, NULL, jogada_tread, &t2_id);
+    pthread_create(&t1, NULL, jogada_thread, &t1_id);
+    pthread_create(&t2, NULL, jogada_thread, &t2_id);
     pthread_join(t1, NULL);
     pthread_join(t2, NULL);
     pthread_exit(NULL);
