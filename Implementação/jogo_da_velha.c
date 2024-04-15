@@ -20,7 +20,6 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 // Regiao critica
-char ganhou = 'f';
 int should_sleep = 1; // variável de condição
 int quantidade_jogada = 0;
 int max_jogada = 9;
