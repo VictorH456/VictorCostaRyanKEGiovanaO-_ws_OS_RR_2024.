@@ -8,6 +8,7 @@
   <p align="center">
     <img src="https://github.com/VictorH456/VictorCostaRyanK-_ws_OS_RR_2024./blob/main/Implementa%C3%A7%C3%A3o/jogodavelha.jpg">
     
+
 # Jogo da Velha
   O projeto a ser desenvolvido, consiste na criação do jogo da velha em c. Neste caso, o jogo será feito por
   dois usuários artificiais (ou seja duas threads) no mesmo jogo da velha. Cada usuário deve operar o
